@@ -159,8 +159,8 @@ def run_ml() :
                         ideal_drinks = df_drink.loc[(df_drink['Caffeine (mg)'] == i) & (df_drink['Beverage_prep'] == size), :].reset_index()
                         if isinstance(ideal_drinks, pd.DataFrame) :
                             for j in range(len(ideal_drinks)) :
-                                best_drink = ideal_drinks[j]
-                                st.success(f'카페인이 부족한 오늘, {size} 사이즈 {best_drink['Beverage'].values[0]}로 힘내보는 건 어때요?')
+                                best_drink = ideal_drinks.iloc[j].to_frame()
+                                st.success(f'카페인이 부족한 오늘, {size} 사이즈 {best_drink.loc['Beverage', :].values[0]}로 힘내보는 건 어때요?')
                                 if st.button('이거 마실래요!') :
                                     st.session_state.selected = True
                                     st.rerun()
@@ -207,8 +207,8 @@ def run_ml() :
                         ideal_drinks = df_drink.loc[(df_drink['Sugars (g)'] == i) & (df_drink['Beverage_prep'] == size), :].reset_index()
                         if isinstance(ideal_drinks, pd.DataFrame) :
                             for j in range(len(ideal_drinks)) :
-                                best_drink = ideal_drinks[j]
-                                st.success(f'달달한 거 너무 좋죠, {size} 사이즈 {best_drink['Beverage'].values[0]} 한 잔 어때요?')
+                                best_drink = ideal_drinks.iloc[j].to_frame()
+                                st.success(f'달달한 거 너무 좋죠, {size} 사이즈 {best_drink.loc['Beverage', :].values[0]} 한 잔 어때요?')
                                 if st.button('이거 마실래요!') :
                                     st.session_state.selected = True
                                     st.rerun()
@@ -255,8 +255,8 @@ def run_ml() :
                         ideal_drinks = df_drink.loc[(df_drink['Calories'] == i) & (df_drink['Beverage_prep'] == size), :].reset_index()
                         if isinstance(ideal_drinks, pd.DataFrame) :
                             for j in range(len(ideal_drinks)) :
-                                best_drink = ideal_drinks[j]
-                                st.success(f'칼로리 걱정 말고 {size} 사이즈 {best_drink['Beverage'].values[0]}로 주문하세요!')
+                                best_drink = ideal_drinks.iloc[j].to_frame()
+                                st.success(f'칼로리 걱정 말고 {size} 사이즈 {best_drink.loc['Beverage', :].values[0]}로 주문하세요!')
                                 if st.button('이거 마실래요!') :
                                     st.session_state.selected = True
                                     st.rerun()

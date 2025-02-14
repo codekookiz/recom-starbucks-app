@@ -139,7 +139,7 @@ def run_ml() :
 
             # 익숙한 맛
             if choice == option_d[1] :
-                my_drinks = df_log.loc[(df_log['ID'] == id) & (df_log['사이즈'] == size), '음료명':]
+                my_drinks = df_log.loc[(df_log['ID'] == id) & (df_log['사이즈 및 유제품'] == size), '음료명':]
                 if not my_drinks.empty :
                     my_num1 = my_drinks.value_counts().idxmax()
                     st.success(f"""
@@ -147,17 +147,14 @@ def run_ml() :
                                {print_size} 사이즈 {my_num1[0]}로
                                드리면 될까요?
                                """)
-                    col1, col2 = st.columns(2)
-                    with col1 :
-                        if st.button('이거 마실래요!') :
-                            selected = True
-                            answer = True
-                            data = np.array([id, my_num1[0], size]).reshape(1, 3)
-                            df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
-                            df_log.to_csv('data/order_data.csv', index=False)
-                    with col2 :
-                        if st.button('다시 고민해보실래요?') :
-                            answer = True
+                    if st.button('이거 마실래요!') :
+                        selected = True
+                        answer = True
+                        data = np.array([id, my_num1[0], size]).reshape(1, 3)
+                        df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                        df_log.to_csv('data/order_data.csv', index=False)
+                    if st.button('다시 고민해보실래요?') :
+                        answer = True
                 else :
                     st.info('이 조합의 음료는 처음이시네요. 음료를 추천해드릴까요?')
                     if st.button('다른 음료 추천 받기') :
@@ -173,14 +170,14 @@ def run_ml() :
                 my_drinks = df_log.loc[(df_log['ID'] == id) & (df_log['사이즈 및 유제품'] == size), '음료명':]
                 if not my_drinks.empty :
                     my_num1 = my_drinks.value_counts().idxmax()
-                    my_num1_data = df_drink.loc[df_drink['Beverage'] == my_num1[0], :]
+                    my_num1_data = df_drink.loc[df_drink['음료명'] == my_num1[0], :]
                     if my_num1_data['카페인 (mg)'].values[0] >= mean_caffeine :
                         st.success(f"""
                                카페인이 부족한 오늘,\n\n
                                {print_size} 사이즈 {my_num1[0]}로\n\n
                                힘내보는 건 어때요?
                                """)
-                        st.dataframe(df_drink.loc[(df_drink['음료명'] == my_num1[0]) & (df_drink['사이즈 및 유제품'] == my_num1[1]), 'Beverage':].set_index('Beverage'))
+                        st.dataframe(df_drink.loc[(df_drink['음료명'] == my_num1[0]) & (df_drink['사이즈 및 유제품'] == my_num1[1]), '음료명':].set_index('음료명'))
                         st.text("아래의 '이거 마실래요!' 버튼을 클릭해 당신의 선택지를 저장하고, 더욱 정확한 예측을 받아보세요!")
                         if st.button('이거 마실래요!', key=f"O_my_{my_num1}") :
                             selected = True

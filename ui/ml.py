@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import time
 
 def run_ml() :
@@ -102,246 +103,218 @@ def run_ml() :
         st.markdown('<p style="font-size: 22px; font-weight: bold; color: #333; font-family: Arial, sans-serif; border-bottom: 3px solid #4CAF50; padding-bottom: 10px;">📌 당신의 선택은?</p>', unsafe_allow_html=True)
         st.text('')
 
-        option_d = ['늘 먹던 걸로.', '피곤해요.. 혈중 카페인 농도 부족!', '그냥 아주 달달한 거 주세요.',
+        option_d = ['-', '늘 먹던 걸로.', '피곤해요.. 혈중 카페인 농도 부족!', '그냥 아주 달달한 거 주세요.',
                     '죄책감은 최소로! 맛은 그대로!', '오늘은 새로운 게 궁금해!']
-        option_s = ['Short', 'Tall', 'Grande', 'Venti', 'Short Nonfat Milk', '2% Milk', 'Soymilk', 'Tall Nonfat Milk',
-                    'Grande Nonfat Milk', 'Venti Nonfat Milk', 'Solo', 'Doppio', 'Whole Milk']
+        option_m = ["-", "없음", '무지방 우유', "저지방 우유", "두유", "일반 우유"]
+
+        choice = st.selectbox('오늘의 선택은?', option_d)
 
         col1, col2 = st.columns(2)
         with col1 :
-            choice = st.selectbox('오늘의 선택은?', option_d)
+            type = st.selectbox('유제품 선택?', option_m)
         with col2 :
+            option_s = []
+            if type == '없음' :
+                option_s = ["-", "Solo", "Doppio", "Short", "Tall", "Grande", "Venti"]
+            if type in ['무지방 우유', '저지방 우유', '두유'] :
+                option_s = ["-", "Short", "Tall", "Grande", "Venti"]
+            if type == '일반 우유' :
+                option_s = ["-", "Tall", "Grande", "Venti"]
             size = st.selectbox('사이즈는?', option_s)
+            
+        is_button_enabled = choice != "-" and type != "-" and size != "-"
 
-        if st.button('음료 추천 받기') :
+        if is_button_enabled :
+            time.sleep(1)
             df_log = pd.read_csv('data/order_data.csv')
             df_drink = pd.read_csv('data/menu_data.csv')
-            if 'selected' not in st.session_state:
-                st.session_state.selected = False
+            selected = False
+            answer = False
+
+            if type == "없음" :
+                print_size = f"{size} "
+            else :
+                print_size = f"{type}가 들어간 {size} "
+                size = f"{size} {type}"
 
             # 익숙한 맛
-            if choice == option_d[0] :
+            if choice == option_d[1] :
                 my_drinks = df_log.loc[(df_log['ID'] == id) & (df_log['사이즈'] == size), '음료명':]
                 if not my_drinks.empty :
                     my_num1 = my_drinks.value_counts().idxmax()
-                    st.success(f'늘 한결 같은 당신, 오늘도 {size} 사이즈 {my_num1[0]}로 드리면 될까요?')
-                    if st.button('이거 마실래요!') :
-                        st.session_state.selected = True
-                        st.rerun()
-                    elif st.button('다시 고민해볼래요.') :
-                        st.session_state.selected = False
-                        st.rerun()
+                    st.success(f"""
+                               늘 한결 같은 당신, 오늘도
+                               {print_size} 사이즈 {my_num1[0]}로
+                               드리면 될까요?
+                               """)
+                    col1, col2 = st.columns(2)
+                    with col1 :
+                        if st.button('이거 마실래요!') :
+                            selected = True
+                            answer = True
+                            data = np.array([id, my_num1[0], size]).reshape(1, 3)
+                            df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                            df_log.to_csv('data/order_data.csv', index=False)
+                    with col2 :
+                        if st.button('다시 고민해보실래요?') :
+                            answer = True
                 else :
-                    st.error('첫 주문이시네요. 음료를 추천해드릴까요?')
-                    if st.button('다시 음료 추천 받기') :
-                        st.rerun()
-                if st.session_state.selected :
+                    st.info('이 조합의 음료는 처음이시네요. 음료를 추천해드릴까요?')
+                    if st.button('다른 음료 추천 받기') :
+                        answer = True
+                if selected & answer :
                      st.success('제 추천이 마음에 드시길 바래요!')
+                elif answer :
+                    st.info('상단 박스를 조정하여 새로운 추천을 받아보세요!')
 
             # 카페인 부족
-            elif choice == option_d[1] :
-                mean_caffeine = df_drink['Caffeine (mg)'].mean()
-                my_drinks = df_log.loc[(df_log['ID'] == id) & (df_log['사이즈'] == size), '음료명':]
+            elif choice == option_d[2] :
+                mean_caffeine = df_drink['카페인 (mg)'].mean()
+                my_drinks = df_log.loc[(df_log['ID'] == id) & (df_log['사이즈 및 유제품'] == size), '음료명':]
                 if not my_drinks.empty :
                     my_num1 = my_drinks.value_counts().idxmax()
                     my_num1_data = df_drink.loc[df_drink['Beverage'] == my_num1[0], :]
-                    if my_num1_data['Caffeine (mg)'].values[0] >= mean_caffeine :
-                        st.success(f'카페인이 부족한 오늘, {size} 사이즈 {my_num1[0]}로 힘내보는 건 어때요?')
-                        if st.button('이거 마실래요!') :
-                            st.session_state.selected = True
-                            st.rerun()
-                        elif st.button('다른 건 없어요?') :
-                            st.session_state.selected = False
-                            pass
-                if df_log.loc[df_log['ID'] == id, '음료명':] is None or my_num1_data['Caffeine (mg)'].values[0] < mean_caffeine :
-                    caffeine_order = df_drink['Caffeine (mg)'].sort_values(ascending=False).values.tolist()
-                    for i in caffeine_order :
-                        ideal_drinks = df_drink.loc[(df_drink['Caffeine (mg)'] == i) & (df_drink['Beverage_prep'] == size), :].reset_index()
-                        if isinstance(ideal_drinks, pd.DataFrame) :
-                            for j in range(len(ideal_drinks)) :
-                                best_drink = ideal_drinks.iloc[j].to_frame()
-                                final_drink = best_drink.loc['Beverage', :].values[0]
-                                st.success(f'카페인이 부족한 오늘, {size} 사이즈 {final_drink}로 힘내보는 건 어때요?')
-                                if st.button('이거 마실래요!') :
-                                    st.session_state.selected = True
-                                    st.rerun()
-                                elif st.button('다른 건 없어요?') :
-                                    st.session_state.selected = False
-                                    pass
-                                if st.session_state.selected :
-                                    break
-                        else :
-                            final_drink = best_drink.loc['Beverage', :].values[0]
-                            st.success(f'카페인이 부족한 오늘, {size} 사이즈 {final_drink}로 힘내보는 건 어때요?')
-                            if st.button('이거 마실래요!') :
-                                st.session_state.selected = True
-                                st.rerun()
-                            elif st.button('다른 건 없어요?') :
-                                st.session_state.selected = False
-                                pass
-                        if st.session_state.selected :
-                            break
-                if st.session_state.selected :
+                    if my_num1_data['카페인 (mg)'].values[0] >= mean_caffeine :
+                        st.success(f"""
+                               카페인이 부족한 오늘,\n\n
+                               {print_size} 사이즈 {my_num1[0]}로\n\n
+                               힘내보는 건 어때요?
+                               """)
+                        st.dataframe(df_drink.loc[(df_drink['음료명'] == my_num1[0]) & (df_drink['사이즈 및 유제품'] == my_num1[1]), 'Beverage':].set_index('Beverage'))
+                        st.text("아래의 '이거 마실래요!' 버튼을 클릭해 당신의 선택지를 저장하고, 더욱 정확한 예측을 받아보세요!")
+                        if st.button('이거 마실래요!', key=f"O_my_{my_num1}") :
+                            selected = True
+                            answer = True
+                            data = np.array([id, my_num1[0], size]).reshape(1, 3)
+                            df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                            df_log.to_csv('data/order_data.csv', index=False)
+                        if st.button('다시 고민해보실래요?') :
+                            answer = True
+                if my_drinks.empty or my_num1_data['카페인 (mg)'].values[0] < mean_caffeine :
+                    df_drink = df_drink.loc[df_drink['사이즈 및 유제품'] == size, :]
+                    caffeine_order = df_drink['카페인 (mg)'].sort_values(ascending=False).values.tolist()
+                    best_caffeine = caffeine_order[0]
+                    ideal_drinks = df_drink.loc[df_drink['카페인 (mg)'] == best_caffeine, :].reset_index()
+                    final_drink = ideal_drinks.loc[0, '음료명']
+                    st.success(f"""
+                               카페인이 부족한 오늘,\n\n
+                               {print_size} 사이즈 {final_drink}로\n\n
+                               힘내보는 건 어때요?
+                               """)
+                    st.dataframe(ideal_drinks.loc[[0], '음료명':].set_index('음료명'))
+                    st.text("아래의 '이거 마실래요!' 버튼을 클릭해 당신의 선택지를 저장하고, 더욱 정확한 예측을 받아보세요!")
+                    if st.button('이거 마실래요!', key=f"O_one_{final_drink}") :
+                        selected = True
+                        answer = True
+                        data = np.array([id, final_drink, size]).reshape(1, 3)
+                        df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                        df_log.to_csv('data/order_data.csv', index=False)
+                    if st.button('다시 고민해보실래요?') :
+                        answer = True
+                if selected & answer :
                      st.success('제 추천이 마음에 드시길 바래요!')
-                else :
-                    st.error('추천해드릴 음료가 없어요. 다시 고민해보실래요?')
-                    if st.button('다시 선택하기') :
-                        st.rerun()
+                elif answer :
+                    st.info('상단 박스를 조정하여 새로운 추천을 받아보세요!')
 
             # 달달한 거
-            elif choice == option_d[2] :
-                mean_sugar = df_drink['Sugars (g)'].mean()
-                my_drinks = df_log.loc[(df_log['ID'] == id) & (df_log['사이즈'] == size), '음료명':]
+            elif choice == option_d[3] :
+                mean_sugar = df_drink['당류 (g)'].mean()
+                my_drinks = df_log.loc[(df_log['ID'] == id) & (df_log['사이즈 및 유제품'] == size), '음료명':]
                 if not my_drinks.empty :
                     my_num1 = my_drinks.value_counts().idxmax()
-                    my_num1_data = df_drink.loc[df_drink['Beverage'] == my_num1[0], :]
-                    if my_num1_data['Sugars (g)'].values[0] >= mean_sugar :
-                        st.success(f'달달한 거 너무 좋죠, {size} 사이즈 {my_num1[0]} 한 잔 어때요?')
-                        if st.button('이거 마실래요!') :
-                            st.session_state.selected = True
-                            st.rerun()
-                        elif st.button('다른 건 없어요?') :
-                            st.session_state.selected = False
-                            pass
-                if df_log.loc[df_log['ID'] == id, '음료명':] is None or my_num1_data['Sugars (g)'].values[0] < mean_sugar :
-                    sugar_order = df_drink['Sugars (g)'].sort_values(ascending=False).values.tolist()
-                    for i in sugar_order :
-                        ideal_drinks = df_drink.loc[(df_drink['Sugars (g)'] == i) & (df_drink['Beverage_prep'] == size), :].reset_index()
-                        if isinstance(ideal_drinks, pd.DataFrame) :
-                            for j in range(len(ideal_drinks)) :
-                                best_drink = ideal_drinks.iloc[j].to_frame()
-                                final_drink = best_drink.loc['Beverage', :].values[0]
-                                st.success(f'달달한 거 너무 좋죠, {size} 사이즈 {final_drink} 한 잔 어때요?')
-                                if st.button('이거 마실래요!') :
-                                    st.session_state.selected = True
-                                    st.rerun()
-                                elif st.button('다른 건 없어요?') :
-                                    st.session_state.selected = False
-                                    pass
-                                if st.session_state.selected :
-                                    break
-                        else :
-                            final_drink = best_drink.loc['Beverage', :].values[0]
-                            st.success(f'달달한 거 너무 좋죠, {size} 사이즈 {final_drink} 한 잔 어때요?')
-                            if st.button('이거 마실래요!') :
-                                st.session_state.selected = True
-                                st.rerun()
-                            elif st.button('다른 건 없어요?') :
-                                st.session_state.selected = False
-                                pass
-                        if st.session_state.selected :
-                            break
-                if st.session_state.selected :
+                    my_num1_data = df_drink.loc[df_drink['음료명'] == my_num1[0], :]
+                    if my_num1_data['당류 (g)'].values[0] >= mean_sugar :
+                        st.success(f"""
+                                   달달한 거 너무 좋죠,\n\n
+                                   {print_size} 사이즈 {my_num1[0]}\n\n
+                                   한 잔 어때요?
+                                   """)
+                        st.dataframe(df_drink.loc[(df_drink['음료명'] == my_num1[0]) & (df_drink['사이즈 및 유제품'] == my_num1[1]), '음료명':].set_index('음료명'))
+                        st.text("아래의 '이거 마실래요!' 버튼을 클릭해 당신의 선택지를 저장하고, 더욱 정확한 예측을 받아보세요!")
+                        if st.button('이거 마실래요!', key=f"O_my_{my_num1}") :
+                            selected = True
+                            answer = True
+                            data = np.array([id, my_num1[0], size]).reshape(1, 3)
+                            df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                            df_log.to_csv('data/order_data.csv', index=False)
+                        if st.button('다시 고민해보실래요?') :
+                            answer = True
+                if my_drinks.empty or my_num1_data['당류 (g)'].values[0] < mean_sugar :
+                    df_drink = df_drink.loc[df_drink['사이즈 및 유제품'] == size, :]
+                    sugar_order = df_drink['당류 (g)'].sort_values(ascending=False).values.tolist()
+                    best_sugar = sugar_order[0]
+                    ideal_drinks = df_drink.loc[df_drink['당류 (g)'] == best_sugar, :].reset_index()
+                    final_drink = ideal_drinks.loc[0, '음료명']
+                    st.success(f"""
+                               달달한 거 너무 좋죠,\n\n
+                               {print_size} 사이즈 {final_drink}\n\n
+                               한 잔 어때요?
+                               """)
+                    st.dataframe(ideal_drinks.loc[[0], '음료명':].set_index('음료명'))
+                    st.text("아래의 '이거 마실래요!' 버튼을 클릭해 당신의 선택지를 저장하고, 더욱 정확한 예측을 받아보세요!")
+                    if st.button('이거 마실래요!', key=f"O_one_{final_drink}") :
+                        selected = True
+                        answer = True
+                        data = np.array([id, final_drink, size]).reshape(1, 3)
+                        df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                        df_log.to_csv('data/order_data.csv', index=False)
+                    if st.button('다시 고민해보실래요?') :
+                        answer = True
+                if selected & answer :
                      st.success('제 추천이 마음에 드시길 바래요!')
-                else :
-                    st.error('추천해드릴 음료가 없어요. 다시 고민해보실래요?')
-                    if st.button('다시 선택하기') :
-                        st.rerun()
+                elif answer :
+                    st.info('상단 박스를 조정하여 새로운 추천을 받아보세요!')
 
             # 저칼로리
-            elif choice == option_d[3] :
-                mean_calorie = df_drink['Calories'].mean()
-                my_drinks = df_log.loc[(df_log['ID'] == id) & (df_log['사이즈'] == size), '음료명':]
+            elif choice == option_d[4] :
+                mean_calorie = df_drink['열량'].mean()
+                my_drinks = df_log.loc[(df_log['ID'] == id) & (df_log['사이즈 및 유제품'] == size), '음료명':]
                 if not my_drinks.empty :
-                    my_num1 = my_drinks.value_counts().idxmax()
-                    my_num1_data = df_drink.loc[df_drink['Beverage'] == my_num1[0], :]
-                    if my_num1_data['Calories'].values[0] >= mean_calorie :
-                        st.success(f'칼로리 걱정 말고 {size} 사이즈 {my_num1[0]}로 주문하세요!')
-                        if st.button('이거 마실래요!') :
-                            st.session_state.selected = True
-                            st.rerun()
-                        elif st.button('다른 건 없어요?') :
-                            st.session_state.selected = False
-                            pass
-                if df_log.loc[df_log['ID'] == id, '음료명':] is None or my_num1_data['Calories'].values[0] < mean_calorie :
-                    calorie_order = df_drink['Calories'].sort_values(ascending=False).values.tolist()
-                    for i in calorie_order :
-                        ideal_drinks = df_drink.loc[(df_drink['Calories'] == i) & (df_drink['Beverage_prep'] == size), :].reset_index()
-                        if isinstance(ideal_drinks, pd.DataFrame) :
-                            for j in range(len(ideal_drinks)) :
-                                best_drink = ideal_drinks.iloc[j].to_frame()
-                                final_drink = best_drink.loc['Beverage', :].values[0]
-                                st.success(f'칼로리 걱정 말고 {size} 사이즈 {final_drink}로 주문하세요!')
-                                if st.button('이거 마실래요!') :
-                                    st.session_state.selected = True
-                                    st.rerun()
-                                elif st.button('다른 건 없어요?') :
-                                    st.session_state.selected = False
-                                    pass
-                                if st.session_state.selected :
-                                    break
-                        else :
-                            final_drink = best_drink.loc['Beverage', :].values[0]
-                            st.success(f'칼로리 걱정 말고 {size} 사이즈 {final_drink}로 주문하세요!')
-                            if st.button('이거 마실래요!') :
-                                st.session_state.selected = True
-                                st.rerun()
-                            elif st.button('다른 건 없어요?') :
-                                st.session_state.selected = False
-                                pass
-                        if st.session_state.selected :
-                            break
-                if st.session_state.selected :
+                    my_num1 = my_drinks.value_counts().idxmin()
+                    my_num1_data = df_drink.loc[df_drink['음료명'] == my_num1[0], :]
+                    if my_num1_data['열량'].values[0] <= mean_calorie :
+                        st.success(f"""
+                                   칼로리 걱정 말고,\n\n
+                                   {print_size} 사이즈 {my_num1[0]}로\n\n
+                                   주문하세요!
+                                   """)
+                        st.dataframe(df_drink.loc[(df_drink['음료명'] == my_num1[0]) & (df_drink['사이즈 및 유제품'] == my_num1[1]), '음료명':].set_index('음료명'))
+                        st.text("아래의 '이거 마실래요!' 버튼을 클릭해 당신의 선택지를 저장하고, 더욱 정확한 예측을 받아보세요!")
+                        if st.button('이거 마실래요!', key=f"O_my_{my_num1}") :
+                            selected = True
+                            answer = True
+                            data = np.array([id, my_num1[0], size]).reshape(1, 3)
+                            df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                            df_log.to_csv('data/order_data.csv', index=False)
+                        if st.button('다시 고민해보실래요?') :
+                            answer = True
+                if my_drinks.empty or my_num1_data['열량'].values[0] > mean_calorie :
+                    df_drink = df_drink.loc[df_drink['사이즈 및 유제품'] == size, :]
+                    calorie_order = df_drink['열량'].sort_values().values.tolist()
+                    best_calorie = calorie_order[0]
+                    ideal_drinks = df_drink.loc[df_drink['열량'] == best_calorie, :].reset_index()
+                    final_drink = ideal_drinks.loc[0, '음료명']
+                    st.success(f"""
+                               칼로리 걱정 말고,\n\n
+                               {print_size} 사이즈 {final_drink}로\n\n
+                               주문하세요!
+                               """)
+                    st.dataframe(ideal_drinks.loc[[0], '음료명':].set_index('음료명'))
+                    st.text("아래의 '이거 마실래요!' 버튼을 클릭해 당신의 선택지를 저장하고, 더욱 정확한 예측을 받아보세요!")
+                    if st.button('이거 마실래요!', key=f"O_one_{final_drink}") :
+                        selected = True
+                        answer = True
+                        data = np.array([id, final_drink, size]).reshape(1, 3)
+                        df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                        df_log.to_csv('data/order_data.csv', index=False)
+                    if st.button('다시 고민해보실래요?') :
+                        answer = True
+                if selected & answer :
                      st.success('제 추천이 마음에 드시길 바래요!')
-                else :
-                    st.error('추천해드릴 음료가 없어요. 다시 고민해보실래요?')
-                    if st.button('다시 선택하기') :
-                        st.rerun()
-
+                elif answer :
+                    st.info('상단 박스를 조정하여 새로운 추천을 받아보세요!')
+                
             # 신규 추천
-            else : 
+            elif choice == option_d[5] : 
                 pass
 
-
-
-
-        #classifier = joblib.load('model/classifier.pkl')
-
-        #mpaa_dict = {'전체 관람가': 0, '12세 이상 관람가': 1, '15세 이상 관람가': 2, '청소년 관람 불가': 3}
-        #genre_dict = {
-        #    '액션': 0, '어드벤처': 1, '블랙 코미디': 2, '코미디': 3, '드라마': 4,
-        #    '호러': 5, '뮤지컬': 6, '로맨틱 코미디': 7, '스릴러/서스펜스': 8, '서부극': 9
-        #}
-
-        #data_classify = np.array([cost, mpaa_dict[mpaa], genre_dict[genre], runtime, year]).reshape(1, 5)
-        #new_data_classify = pd.DataFrame(data_classify)
-
-        #st.text('')
-
-                #st.markdown('<p class="sub-header">🔍 예측 결과</p>', unsafe_allow_html=True)
-
-                #pred_group = classifier.predict(new_data_classify)
-
-                #label_group = {0: '미들 마켓', 1: '메가 블록버스터', 2: '블록버스터'}[pred_group[0]]
-                #st.success(f'🎬 영화 **"{title}"** 은(는) **{label_group}** 영화군요!')
-                
-                #with st.spinner('⏳ 수익 예측을 실시하는 중...'):
-                #    time.sleep(2)
-
-                #    regressor = joblib.load('model/regressor.pkl')
-                #    data_predict = np.array([cost, opening, mpaa_dict[mpaa], genre_dict[genre], runtime, year]).reshape(1, 6)
-                #    pred_profit = regressor.predict(data_predict)[0][0]
-                #    pred_dom_profit = int(pred_profit.round())
-
-                #    if pred_dom_profit >= 0:
-                #        new_dom_profit = format(pred_dom_profit, ',')
-                #        st.subheader(f'📈 예상 북미 박스오피스 수익: **{new_dom_profit} 달러**')
-
-                #        time.sleep(1)
-
-                #        wrld_dom_ratio = 2.7
-                #        pred_wrld_profit = int((pred_profit * wrld_dom_ratio).round())
-                #        new_wrld_profit = format(pred_wrld_profit, ',')
-                #        st.subheader(f'🌍 예상 전세계 박스오피스 수익: **{new_wrld_profit} 달러**')
-
-                #        save_df = pd.read_csv('data/result.csv')
-                #        new_row = pd.DataFrame([{"영화명":title, "개봉 연도":int(year), "상영 시간":int(runtime), "상영 등급":mpaa, "장르":genre,
-                #                                "제작 비용 ($)":int(cost), "개봉 주말 수익 ($)":int(opening), "유형":label_group, "북미 예상 수익 ($)":int(pred_dom_profit),
-                #                                "전세계 예상 수익 ($)":int(pred_wrld_profit)}])
-                #        print(new_row)
-
-                #        save_df = pd.concat([save_df, new_row], ignore_index=True)
-                #        save_df.to_csv('data/result.csv', index=False)
-
-                #    else:
-                #        st.error('❌ 예측이 불가능한 데이터입니다.')

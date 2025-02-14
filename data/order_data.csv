@@ -1,6 +1,3 @@
-ID,음료 타입,음료명,사이즈
-abc,Coffee,Brewed Coffee,Tall
-abc,Coffee,Brewed Coffee,Tall
-abc,Coffee,Brewed Coffee,Grande
-def,Coffee,Brewed Coffee,Tall
-abc,Classic Espresso Drinks,Caffè Latte,Grande
+ID,음료명,사이즈 및 유제품
+abc,오늘의 커피,Tall
+abc,모카 프라푸치노 (휘핑 제외),Tall 무지방 우유

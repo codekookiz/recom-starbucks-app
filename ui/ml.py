@@ -187,9 +187,9 @@ def run_ml() :
                             selected = True
                             answer = True
                             if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈 및 유제품'] == size)].empty :
-                            data = [[id, final_drink, size, 1]]
-                            df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
-                            df_log.to_csv('data/order_data.csv', index=False)
+                                data = [[id, final_drink, size, 1]]
+                                df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                                df_log.to_csv('data/order_data.csv', index=False)
                         else :
                             df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈 및 유제품'] == size), '주문 수'] += 1
                             df_log.to_csv('data/order_data.csv', index=False)
@@ -244,12 +244,12 @@ def run_ml() :
                             selected = True
                             answer = True
                             if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈 및 유제품'] == size)].empty :
-                            data = [[id, final_drink, size, 1]]
-                            df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
-                            df_log.to_csv('data/order_data.csv', index=False)
-                        else :
-                            df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈 및 유제품'] == size), '주문 수'] += 1
-                            df_log.to_csv('data/order_data.csv', index=False)
+                                data = [[id, final_drink, size, 1]]
+                                df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                                df_log.to_csv('data/order_data.csv', index=False)
+                            else :
+                                df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈 및 유제품'] == size), '주문 수'] += 1
+                                df_log.to_csv('data/order_data.csv', index=False)
                         if st.button('다시 고민해보실래요?') :
                             answer = True
                 if my_drinks.empty or my_num1_data['당류 (g)'].values[0] < mean_sugar :
@@ -301,12 +301,12 @@ def run_ml() :
                             selected = True
                             answer = True
                             if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈 및 유제품'] == size)].empty :
-                            data = [[id, final_drink, size, 1]]
-                            df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
-                            df_log.to_csv('data/order_data.csv', index=False)
-                        else :
-                            df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈 및 유제품'] == size), '주문 수'] += 1
-                            df_log.to_csv('data/order_data.csv', index=False)
+                                data = [[id, final_drink, size, 1]]
+                                df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                                df_log.to_csv('data/order_data.csv', index=False)
+                            else :
+                                df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈 및 유제품'] == size), '주문 수'] += 1
+                                df_log.to_csv('data/order_data.csv', index=False)
                         if st.button('다시 고민해보실래요?') :
                             answer = True
                 if my_drinks.empty or my_num1_data['열량'].values[0] > mean_calorie :

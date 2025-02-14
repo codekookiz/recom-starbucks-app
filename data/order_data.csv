@@ -1,2 +1,11 @@
 ID,음료명,사이즈 및 유제품,주문 수
-abc,오늘의 커피,Tall,1
+abc,오늘의 커피,Tall,4
+abc,카푸치노,Grande 무지방 우유,2
+abc,카푸치노,Venti 무지방 우유,1
+abc,카푸치노,Venti 두유,1
+abc,타조® 티,Short,1
+abc,카페 모카 (휘핑 제외),Venti 저지방 우유,2
+def,자바칩 프라푸치노 (휘핑 제외),Venti 무지방 우유,1
+def,자바칩 프라푸치노 (휘핑 제외),Grande 일반 우유,2
+ghi,오늘의 커피,Venti,3
+ghi,카페 모카 (휘핑 제외),Grande 저지방 우유,2

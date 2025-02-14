@@ -89,7 +89,7 @@ def run_ml() :
         st.markdown('<p style="font-size: 24px; font-weight: bold; color: #333; font-family: Arial, sans-serif;">🎞️ ML 기반 스타벅스 맞춤 음료 추천</p>', unsafe_allow_html=True)
 
         # 정보 박스 스타일
-        st.markdown('<p style="font-size: 16px; color: #555; font-family: Arial, sans-serif; background-color: #f0f0f0; padding: 15px; border-radius: 8px; box-shadow: 0px 2px 10px rgba(0,0,0,0.1);">아래의 옵션을 선택시면 오늘의 음료를 추천해드립니다.</p>', unsafe_allow_html=True)
+        st.markdown('<p style="font-size: 16px; color: #555; font-family: Arial, sans-serif; background-color: #f0f0f0; padding: 15px; border-radius: 8px; box-shadow: 0px 2px 10px rgba(0,0,0,0.1);">아래의 옵션을 선택하시면 오늘의 음료를 추천해드립니다.</p>', unsafe_allow_html=True)
         st.text('')
 
         if st.button('❓ 음료 추천 예시') :
@@ -150,9 +150,13 @@ def run_ml() :
                     if st.button('이거 마실래요!') :
                         selected = True
                         answer = True
-                        data = np.array([id, my_num1[0], size]).reshape(1, 3)
-                        df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
-                        df_log.to_csv('data/order_data.csv', index=False)
+                        if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈 및 유제품'] == size)].empty :
+                            data = [[id, final_drink, size, 1]]
+                            df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                            df_log.to_csv('data/order_data.csv', index=False)
+                        else :
+                            df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈 및 유제품'] == size), '주문 수'] += 1
+                            df_log.to_csv('data/order_data.csv', index=False)
                     if st.button('다시 고민해보실래요?') :
                         answer = True
                 else :
@@ -182,8 +186,12 @@ def run_ml() :
                         if st.button('이거 마실래요!', key=f"O_my_{my_num1}") :
                             selected = True
                             answer = True
-                            data = np.array([id, my_num1[0], size]).reshape(1, 3)
+                            if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈 및 유제품'] == size)].empty :
+                            data = [[id, final_drink, size, 1]]
                             df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                            df_log.to_csv('data/order_data.csv', index=False)
+                        else :
+                            df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈 및 유제품'] == size), '주문 수'] += 1
                             df_log.to_csv('data/order_data.csv', index=False)
                         if st.button('다시 고민해보실래요?') :
                             answer = True
@@ -203,9 +211,13 @@ def run_ml() :
                     if st.button('이거 마실래요!', key=f"O_one_{final_drink}") :
                         selected = True
                         answer = True
-                        data = np.array([id, final_drink, size]).reshape(1, 3)
-                        df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
-                        df_log.to_csv('data/order_data.csv', index=False)
+                        if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == final_drink) & (df_log['사이즈 및 유제품'] == size)].empty :
+                            data = [[id, final_drink, size, 1]]
+                            df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                            df_log.to_csv('data/order_data.csv', index=False)
+                        else :
+                            df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == final_drink) & (df_log['사이즈 및 유제품'] == size), '주문 수'] += 1
+                            df_log.to_csv('data/order_data.csv', index=False)
                     if st.button('다시 고민해보실래요?') :
                         answer = True
                 if selected & answer :
@@ -224,15 +236,19 @@ def run_ml() :
                         st.success(f"""
                                    달달한 거 너무 좋죠,\n\n
                                    {print_size} 사이즈 {my_num1[0]}\n\n
-                                   한 잔 어때요?
+                                   어때요?
                                    """)
                         st.dataframe(df_drink.loc[(df_drink['음료명'] == my_num1[0]) & (df_drink['사이즈 및 유제품'] == my_num1[1]), '음료명':].set_index('음료명'))
                         st.text("아래의 '이거 마실래요!' 버튼을 클릭해 당신의 선택지를 저장하고, 더욱 정확한 예측을 받아보세요!")
                         if st.button('이거 마실래요!', key=f"O_my_{my_num1}") :
                             selected = True
                             answer = True
-                            data = np.array([id, my_num1[0], size]).reshape(1, 3)
+                            if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈 및 유제품'] == size)].empty :
+                            data = [[id, final_drink, size, 1]]
                             df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                            df_log.to_csv('data/order_data.csv', index=False)
+                        else :
+                            df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈 및 유제품'] == size), '주문 수'] += 1
                             df_log.to_csv('data/order_data.csv', index=False)
                         if st.button('다시 고민해보실래요?') :
                             answer = True
@@ -245,16 +261,20 @@ def run_ml() :
                     st.success(f"""
                                달달한 거 너무 좋죠,\n\n
                                {print_size} 사이즈 {final_drink}\n\n
-                               한 잔 어때요?
+                               어때요?
                                """)
                     st.dataframe(ideal_drinks.loc[[0], '음료명':].set_index('음료명'))
                     st.text("아래의 '이거 마실래요!' 버튼을 클릭해 당신의 선택지를 저장하고, 더욱 정확한 예측을 받아보세요!")
                     if st.button('이거 마실래요!', key=f"O_one_{final_drink}") :
                         selected = True
                         answer = True
-                        data = np.array([id, final_drink, size]).reshape(1, 3)
-                        df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
-                        df_log.to_csv('data/order_data.csv', index=False)
+                        if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == final_drink) & (df_log['사이즈 및 유제품'] == size)].empty :
+                            data = [[id, final_drink, size, 1]]
+                            df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                            df_log.to_csv('data/order_data.csv', index=False)
+                        else :
+                            df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == final_drink) & (df_log['사이즈 및 유제품'] == size), '주문 수'] += 1
+                            df_log.to_csv('data/order_data.csv', index=False)
                     if st.button('다시 고민해보실래요?') :
                         answer = True
                 if selected & answer :
@@ -280,8 +300,12 @@ def run_ml() :
                         if st.button('이거 마실래요!', key=f"O_my_{my_num1}") :
                             selected = True
                             answer = True
-                            data = np.array([id, my_num1[0], size]).reshape(1, 3)
+                            if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈 및 유제품'] == size)].empty :
+                            data = [[id, final_drink, size, 1]]
                             df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                            df_log.to_csv('data/order_data.csv', index=False)
+                        else :
+                            df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈 및 유제품'] == size), '주문 수'] += 1
                             df_log.to_csv('data/order_data.csv', index=False)
                         if st.button('다시 고민해보실래요?') :
                             answer = True
@@ -301,9 +325,14 @@ def run_ml() :
                     if st.button('이거 마실래요!', key=f"O_one_{final_drink}") :
                         selected = True
                         answer = True
-                        data = np.array([id, final_drink, size]).reshape(1, 3)
-                        df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
-                        df_log.to_csv('data/order_data.csv', index=False)
+                        if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == final_drink) & (df_log['사이즈 및 유제품'] == size)].empty :
+                            data = [[id, final_drink, size, 1]]
+                            df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
+                            df_log.to_csv('data/order_data.csv', index=False)
+                        else :
+                            df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == final_drink) & (df_log['사이즈 및 유제품'] == size), '주문 수'] += 1
+                            df_log.to_csv('data/order_data.csv', index=False)
+                        
                     if st.button('다시 고민해보실래요?') :
                         answer = True
                 if selected & answer :

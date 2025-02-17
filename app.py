@@ -75,8 +75,8 @@ def main():
     with tab2:
         run_info()
 
-    with tab3:
-        run_dev()
+    #with tab3:
+        #run_dev()
 
     with tab4:
         run_choice()
@@ -87,8 +87,8 @@ def main():
     with tab6:
         run_review()
 
-    with tab7:
-        run_stat()
+    #with tab7:
+        #run_stat()
 
 if __name__ == '__main__':
     main()

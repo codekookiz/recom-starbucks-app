@@ -9,7 +9,7 @@ def run_home():
     st.markdown(
         """
         <h2 style="text-align: center; color: #FF4B4B;">
-            🎥 영화 수익 예측 개요
+            🥤 스타벅스 음료 주문 및 추천 시스템 개요
         </h2>
         """, 
         unsafe_allow_html=True
@@ -21,8 +21,8 @@ def run_home():
     st.markdown(
         """
         <p style="font-size: 18px; text-align: center;">
-            🎬 과거 영화 데이터를 기반으로 <b>신규 영화의 예상 수익을 예측</b>하는 앱입니다!<br>
-            데이터 분석과 머신러닝 모델을 활용하여 <b>흥행 가능성을 미리 확인해보세요.</b>
+            ☕️ 스타벅스의 최신 음료 영양정보 데이터를 기반으로 <b>사용자의 취향에 맞는 음료를 추천</b>하는 앱입니다.<br>
+            음료 주문 데이터와 딥러닝 모델을 통해 <b>나의 취향에 맞는 음료</b>를 추천 받아보세요.</b>
         </p>
         """, 
         unsafe_allow_html=True
@@ -34,11 +34,12 @@ def run_home():
     st.markdown("### 📌 **사용 데이터**")
     st.info(
         """
-        🔹 **[top-500-movies.csv](https://www.kaggle.com/datasets/mitchellharrison/top-500-movies-budget)** (출처: Kaggle)  
-        * 1991년부터 2022년까지 개봉한 영화 중 전 세계 흥행 순위 1위부터 500위까지의 영화 데이터입니다.\n\n 
-        🔹 **new_movie.csv** (상단 데이터 일부 수정 및 추가 데이터 포함)\n\n
-        * **중복 데이터**('year(개봉 연도)'와 'released_date(개봉 일자)') 및 **불필요 데이터**('url' 등) 제거\n\n
-        * 비슷한 속성을 지닌 영화를 그룹(클러스터)화하여 해당 그룹 정보를 **새로운 컬럼**('영화 유형')에 추가
+        🔹 **[starbucks_drinkMenu_expanded.csv](https://www.kaggle.com/datasets/noorunnishabegum1996/starbucks-drinkmenu-expanded)** (출처: Kaggle)  
+        * 2019년 기준 미국 스타벅스에서 판매하는 음료의 영양성분 데이터입니다.\n\n 
+        🔹 **스타벅스 영양성분.csv** (영문 데이터 번역 및 한국 스타벅스 음료 데이터 추가)\n\n
+        * 2025년 2월 기준 한국 스타벅스 매장에서 판매하는 음료 데이터를 추가하고, 영문 컬럼명 및 데이터를 한글로 번역하였습니다.\n\n
+        * [스타벅스 코리아](https://www.starbucks.co.kr/menu/drink_list.do) 홈페이지에 업로드된 데이터를 활용해 직접 제작한 데이터셋입니다.\n\n
+        * **사이즈 및 유제품** 컬럼을 분리하여 가독성 개선
         """
     )
 

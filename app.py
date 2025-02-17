@@ -3,10 +3,11 @@ import pandas as pd
 from datetime import datetime, timedelta, timezone
 
 from ui.dev import run_dev
-from ui.eda import run_eda
+from ui.choice import run_choice
 from ui.home import run_home
 from ui.info import run_info
-from ui.ml import run_ml
+from ui.recom import run_recom
+from ui.review import run_review
 from ui.stat import run_stat
 
 
@@ -67,7 +68,7 @@ def main():
     st.sidebar.markdown("---")
 
     # 탭 메뉴
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["🏠 홈", "ℹ 앱 상세 정보", "⚒️ 개발 정보", "📊 과거 데이터 확인하기", "🎬 영화 수익 예측하기", "💿 통계 데이터"])
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["🏠 홈", "ℹ 앱 상세 정보", "⚒️ 개발 정보", "📊 전체 메뉴 확인하기", "☕️ 음료 추천 받기", "✍️ 리뷰 남기기", "💿 통계 데이터"])
 
     # 각 탭에 해당하는 기능 실행
     with tab1:
@@ -79,13 +80,16 @@ def main():
    # with tab3:
         #run_dev()
 
-   # with tab4:
-        #run_eda()
+    with tab4:
+        run_choice()
 
     with tab5:
-        run_ml()
+        run_recom()
 
-   # with tab6:
+    with tab6:
+        run_review()
+
+   # with tab7:
         #run_stat()
 
 if __name__ == '__main__':

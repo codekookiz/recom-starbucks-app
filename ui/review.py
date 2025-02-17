@@ -141,19 +141,37 @@ def run_review():
                     status = 'Update'
 
                 login(token=get_huggingface_token())
-                client = InferenceClient(model="distilbert/distilbert-base-uncased-finetuned-sst-2-english")
+                posneg = InferenceClient(model="distilbert/distilbert-base-uncased-finetuned-sst-2-english")
                 if status == 'Update':
-                    prev_result = client.text_classification(text=prev_review)
+                    client = InferenceClient(
+                        provider="hf-inference",
+                        api_key=get_huggingface_token()
+                    )
+                    prev_result = client.translation(
+                        model="yeeunlee/opus-mt-ko-en-finetuned",
+                        text=prev_review
+                    )
+                    prev_result = prev_result.translation_text
+                    prev_result = posneg.text_classification(text=prev_result)
                     prev_result.sort(key=lambda x: x.score, reverse=True)
                     prev_answer = prev_result[0].label
                     if prev_answer == 'POSITIVE':
                         df_drink.loc[(df_drink['음료명'] == drink) & (df_drink['사이즈'] == size), '추천 점수'] -= prev_rating
                     elif prev_answer == 'NEGATIVE':
                         df_drink.loc[(df_drink['음료명'] == drink) & (df_drink['사이즈'] == size), '추천 점수'] += (6 - prev_rating)
-                new_result = client.text_classification(text=review)
+                client = InferenceClient(
+                    provider="hf-inference",
+                    api_key=get_huggingface_token()
+                )
+                new_result = client.translation(
+                    model="yeeunlee/opus-mt-ko-en-finetuned",
+                    text=review
+                )
+                new_result = new_result.translation_text
+                new_result = posneg.text_classification(text=new_result)
                 new_result.sort(key=lambda x: x.score, reverse=True)
                 new_answer = new_result[0].label
-                if new_answer == 'POSITIVE':    
+                if new_answer == 'POSITIVE':
                     df_drink.loc[(df_drink['음료명'] == drink) & (df_drink['사이즈'] == size), '추천 점수'] += rating
                 elif new_answer == 'NEGATIVE':
                     df_drink.loc[(df_drink['음료명'] == drink) & (df_drink['사이즈'] == size), '추천 점수'] -= (6 - rating)

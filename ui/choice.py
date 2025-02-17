@@ -163,9 +163,9 @@ def run_choice():
             st.dataframe(df_drink.loc[(df_drink['음료명'] == drink) & (df_drink['사이즈'] == size), '음료명':'카페인 (mg)'].set_index('음료명'))
             if st.button("주문하기") :    
                 df_log = pd.read_csv('data/order_data.csv')
-
                 if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == drink) & (df_log['사이즈'] == size)].empty :
-                    data = [[id, drink, size, 1]]
+                    dairy = df_drink.loc[df_drink['음료명'] == drink, '유제품'].values[0]
+                    data = [[id, drink, size, dairy, 1]]
                     df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
                     df_log.to_csv('data/order_data.csv', index=False)
                 else :

@@ -122,10 +122,12 @@ def run_recom() :
         with col2 :
             option_s = []
             if type == '빼주세요.' :
-                option_s = ["-"] +  sorted(df_drink.loc[df_drink['유제품'] == 'X', '사이즈'].drop_duplicates().values.tolist(),
+                type = 'X'
+                option_s = ["-"] +  sorted(df_drink.loc[df_drink['유제품'] == type, '사이즈'].drop_duplicates().values.tolist(),
                                     key=lambda x: x != "One Size")
             elif type == '우유 든 걸로!' :
-                option_s = ["-"] + sorted(df_drink.loc[df_drink['유제품'] == 'O', '사이즈'].drop_duplicates().values.tolist(),
+                type = 'O'
+                option_s = ["-"] + sorted(df_drink.loc[df_drink['유제품'] == type, '사이즈'].drop_duplicates().values.tolist(),
                                     key=lambda x: x != "One Size")
             size = st.selectbox('사이즈는?', option_s)
             
@@ -138,7 +140,7 @@ def run_recom() :
 
             # 익숙한 맛
             if choice == option_d[1] :
-                my_drinks = df_log.loc[(df_log['ID'] == id) & (df_log['사이즈'] == size), '음료명':'카페인 (mg)']
+                my_drinks = df_log.loc[(df_log['ID'] == id) & (df_log['사이즈'] == size) & (df_log['유제품'] == type), '음료명':]
                 if not my_drinks.empty :
                     my_num1 = my_drinks.value_counts().idxmax()
                     st.success(f"""
@@ -150,16 +152,16 @@ def run_recom() :
                         selected = True
                         answer = True
                         if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈'] == size)].empty :
-                            data = [[id, final_drink, size, 1]]
+                            dairy = df_drink.loc[df_drink['음료명'] == my_num1[0], '유제품'].values[0]
+                            data = [[id, my_num1[0], size, dairy, 1]]
                             df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
                             df_log.to_csv('data/order_data.csv', index=False)
                         else :
                             df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈'] == size), '주문 수'] += 1
                             df_log.to_csv('data/order_data.csv', index=False)
                 else :
-                    st.info('이 조합의 음료는 처음이시네요. 음료를 추천해드릴까요?')
-                    if st.button('다른 음료 추천 받기') :
-                        answer = True
+                    st.info('이 조합의 음료는 처음이시네요.')
+                    answer = True
                 if selected & answer :
                         st.success('제 추천이 마음에 드시길 바래요!')
 
@@ -182,7 +184,8 @@ def run_recom() :
                             selected = True
                             answer = True
                             if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈'] == size)].empty :
-                                data = [[id, final_drink, size, 1]]
+                                dairy = df_drink.loc[df_drink['음료명'] == my_num1[0], '유제품'].values[0]
+                                data = [[id, my_num1[0], size, dairy, 1]]
                                 df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
                                 df_log.to_csv('data/order_data.csv', index=False)
                             else :
@@ -204,8 +207,9 @@ def run_recom() :
                     if st.button('이거 마실래요!', key=f"O_one_{final_drink}") :
                         selected = True
                         answer = True
-                        if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈'] == size)].empty :
-                            data = [[id, final_drink, size, 1]]
+                        if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == final_drink) & (df_log['사이즈'] == size)].empty :
+                            dairy = df_drink.loc[df_drink['음료명'] == final_drink, '유제품'].values[0]
+                            data = [[id, final_drink, size, dairy, 1]]
                             df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
                             df_log.to_csv('data/order_data.csv', index=False)
                         else :
@@ -233,7 +237,8 @@ def run_recom() :
                             selected = True
                             answer = True
                             if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈'] == size)].empty :
-                                data = [[id, final_drink, size, 1]]
+                                dairy = df_drink.loc[df_drink['음료명'] == my_num1[0], '유제품'].values[0]
+                                data = [[id, my_num1[0], size, dairy, 1]]
                                 df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
                                 df_log.to_csv('data/order_data.csv', index=False)
                             else :
@@ -256,7 +261,8 @@ def run_recom() :
                         selected = True
                         answer = True
                         if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == final_drink) & (df_log['사이즈'] == size)].empty :
-                            data = [[id, final_drink, size, 1]]
+                            dairy = df_drink.loc[df_drink['음료명'] == final_drink, '유제품'].values[0]
+                            data = [[id, final_drink, size, dairy, 1]]
                             df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
                             df_log.to_csv('data/order_data.csv', index=False)
                         else :
@@ -284,7 +290,8 @@ def run_recom() :
                             selected = True
                             answer = True
                             if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈'] == size)].empty :
-                                data = [[id, final_drink, size, 1]]
+                                dairy = df_drink.loc[df_drink['음료명'] == my_num1[0], '유제품'].values[0]
+                                data = [[id, my_num1[0], size, dairy, 1]]
                                 df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
                                 df_log.to_csv('data/order_data.csv', index=False)
                             else :
@@ -307,7 +314,8 @@ def run_recom() :
                         selected = True
                         answer = True
                         if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == final_drink) & (df_log['사이즈'] == size)].empty :
-                            data = [[id, final_drink, size, 1]]
+                            dairy = df_drink.loc[df_drink['음료명'] == final_drink, '유제품'].values[0]
+                            data = [[id, final_drink, size, dairy, 1]]
                             df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
                             df_log.to_csv('data/order_data.csv', index=False)
                         else :
@@ -338,7 +346,8 @@ def run_recom() :
                         selected = True
                         answer = True
                         if df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == final_drink) & (df_log['사이즈'] == size)].empty :
-                            data = [[id, final_drink, size, 1]]
+                            dairy = df_drink.loc[df_drink['음료명'] == final_drink, '유제품'].values[0]
+                            data = [[id, final_drink, size, dairy, 1]]
                             df_log = pd.concat([df_log, pd.DataFrame(data, columns=df_log.columns)], ignore_index=True)
                             df_log.to_csv('data/order_data.csv', index=False)
                         else :

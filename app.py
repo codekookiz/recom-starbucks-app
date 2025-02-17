@@ -19,7 +19,7 @@ def main():
             ☕️ 스타벅스 음료 추천 앱
         </h1>
         <h2 style='text-align: center; 'color: #4C82C2;'>
-            🤖 머신러닝 기반
+            🤖 데이터 분석 및 딥러닝 기반
         </h2>
         """, unsafe_allow_html=True
     )
@@ -40,30 +40,28 @@ def main():
 
     st.sidebar.markdown("---")
 
-    #df = pd.read_csv('data/new_movie.csv')
-    #count = len(df)
-    #prod = int((df['제작 비용 ($)'].mean() / 1000000).round())
-    #prof = int((df['전세계 박스오피스 수익 ($)'].mean() / 1000000).round())
-    #best = df.sort_values('전세계 박스오피스 수익 ($)', ascending=False).iloc[0, :]['제목']
+    df_drink = pd.read_csv('data/menu_data.csv')
+    df_log = pd.read_csv('data/order_data.csv')
+    df_review = pd.read_csv('data/review_data.csv')
+    count = len(df_drink)
+    kcal = int((df_drink['칼로리 (kcal)'].mean()).round())
+    best = df_review.groupby('음료명')['별점'].mean().sort_values(ascending=False).to_frame().index[0]
+    popular = df_log.groupby('음료명').sum().sort_values('주문 수', ascending=False).iloc[0, :].to_frame().columns[0]
 
-    # 🎬 영화 데이터 요약
+    # 음료 데이터 요약
     st.sidebar.markdown("### 📊 데이터 요약")
-    col1, col2 = st.sidebar.columns(2)
-    #col1.metric("📈 총 영화 데이터", f"{count}개")
-    #col2.metric("💰 평균 제작비", f"${prod}M")
-
-    col3, col4 = st.sidebar.columns(2)
-    #col3.metric("🎟 평균 수익", f"${prof}M")
-    #col4.metric("⭐️ 최고 흥행작", f"{best}")
+    st.sidebar.metric("🥤 총 음료", f"{count}개")
+    st.sidebar.metric("⭐️ 최고 평점 음료", f"{best}")
+    st.sidebar.metric("💰 최다 판매 음료", f"{popular}")
 
     st.sidebar.markdown("---")
 
     # 📌 소셜 & 도움말 버튼 추가
     st.sidebar.markdown("### 🔗 유용한 링크")
-    st.sidebar.link_button("🔍 GitHub Repository", "https://github.com/codekookiz/movie-profit-app")
+    st.sidebar.link_button("🔍 GitHub Repository", "https://github.com/codekookiz/recom-starbucks-app")
 
     if st.sidebar.button("❓ 도움말 보기"):
-        st.sidebar.info("이 앱은 영화 데이터를 분석하고 수익을 예측하는 머신러닝 기반 앱입니다.")
+        st.sidebar.info("이 앱은 사용자의 취향에 따라 스타벅스 음료를 추천하는 딥러닝 기반 앱입니다.")
 
     st.sidebar.markdown("---")
 
@@ -74,11 +72,11 @@ def main():
     with tab1:
         run_home()
 
-   # with tab2:
-        #run_info()
+    with tab2:
+        run_info()
 
-   # with tab3:
-        #run_dev()
+    with tab3:
+        run_dev()
 
     with tab4:
         run_choice()
@@ -89,8 +87,8 @@ def main():
     with tab6:
         run_review()
 
-   # with tab7:
-        #run_stat()
+    with tab7:
+        run_stat()
 
 if __name__ == '__main__':
     main()

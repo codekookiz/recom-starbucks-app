@@ -44,6 +44,7 @@ def run_recom() :
             st.image('image/result_b.png')
         with col3 :
             st.image('image/result_c.png')
+            
 
     # 하위 제목
     st.markdown('<p style="font-size: 22px; font-weight: bold; color: #333; font-family: Arial, sans-serif; border-bottom: 3px solid #4CAF50; padding-bottom: 10px;">📌 당신의 선택은?</p>', unsafe_allow_html=True)

@@ -50,9 +50,29 @@ def main():
 
     # 음료 데이터 요약
     st.sidebar.markdown("### 📊 데이터 요약")
-    st.sidebar.metric("🥤 총 음료", f"{count}개")
-    st.sidebar.metric("⭐️ 최고 평점 음료", f"{best}")
-    st.sidebar.metric("💰 최다 판매 음료", f"{popular}")
+    st.sidebar.markdown(
+        f"""
+        <div style="font-size: 20px; font-weight: bold;">🥤 총 음료</div>
+        <div style="font-size: 28px;">{count}개</div>
+        """, 
+        unsafe_allow_html=True
+    )
+
+    st.sidebar.markdown(
+        f"""
+        <div style="font-size: 20px; font-weight: bold;">⭐️ 최고 평점 음료</div>
+        <div style="font-size: 28px;">{best}</div>
+        """, 
+        unsafe_allow_html=True
+    )
+
+    st.sidebar.markdown(
+        f"""
+        <div style="font-size: 20px; font-weight: bold;">💰 최다 판매 음료</div>
+        <div style="font-size: 28px;">{popular}</div>
+        """, 
+        unsafe_allow_html=True
+    )
 
     st.sidebar.markdown("---")
 
@@ -66,7 +86,7 @@ def main():
     st.sidebar.markdown("---")
 
     # 탭 메뉴
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["🏠 홈", "ℹ 앱 상세 정보", "⚒️ 개발 정보", "📊 전체 메뉴 확인하기", "☕️ 음료 추천 받기", "✍️ 리뷰 남기기", "💿 통계 데이터"])
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["🏠 홈", "ℹ 앱 상세 정보", "⚒️ 개발 정보", "📌 전체 메뉴 확인하기", "☕️ 음료 추천 받기", "✍️ 리뷰 남기기", "💿 통계 데이터"])
 
     # 각 탭에 해당하는 기능 실행
     with tab1:
@@ -87,8 +107,8 @@ def main():
     with tab6:
         run_review()
 
-    #with tab7:
-        #run_stat()
+    with tab7:
+        run_stat()
 
 if __name__ == '__main__':
     main()

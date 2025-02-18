@@ -1,2 +1,17 @@
 ID,음료명,사이즈,유제품,주문 수
-abc,오늘의 커피,Tall,X,1
+abc,오늘의 커피,Tall,X,3
+abc,오늘의 커피,Grande,X,1
+def,자바 칩 프라푸치노,Venti,O,2
+def,나이트로 콜드 브루,Tall,X,1
+ghi,아이스 커피,Tall,X,2
+ghi,헤이즐넛 클라우드 모카,Tall,O,3
+abc,카페 아메리카노,Venti,X,5
+abc,아이스 카푸치노,Grande,O,2
+def,초콜릿 크림 칩 프라푸치노,Tall,O,2
+abc,에스프레소 프라푸치노,Venti,O,4
+ghi,딸기 아사이 레모네이드 스타벅스 리프레셔,Tall,X,1
+abc,쿨 라임 피지오,Tall,X,1
+def,복숭아 아이스 티,Grande,X,4
+ghi,아이스 스타벅스 클래식 밀크 티,Tall,O,2
+def,유자 민트 티,Venti,X,1
+def,아이스 자몽 허니 블랙 티,Grande,X,7

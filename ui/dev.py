@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 
 def run_dev():
     # 스타일 적용
@@ -45,9 +46,10 @@ def run_dev():
         unsafe_allow_html=True
     )
 
+
     st.markdown("---")
     
-    # 프로젝트 개요
+
     st.markdown('<h2>📌 프로젝트 개요</h2>', unsafe_allow_html=True)
     st.write("""
     스타벅스 음료 데이터를 기반으로 사용자들의 음료 주문 현황 데이터를 수집하고
@@ -62,178 +64,268 @@ def run_dev():
     - **리뷰 시스템:** 사용자들이 구매한 음료에 대해 리뷰를 작성하고 이를 차후 음료 추천에 반영
     """)
 
+
     st.markdown("---")
     
-    # 데이터 수집 및 전처리
-    st.markdown('<h2>🎞 데이터 수집 및 전처리</h2>', unsafe_allow_html=True)
+
+    st.markdown('<h2>📈 데이터 수집 및 전처리</h2>', unsafe_allow_html=True)
     
     st.markdown('<h4>📌 사용한 데이터</h4>', unsafe_allow_html=True)
     st.write("""
-    - **출처:** Kaggle (top-500-movies.csv)  
-    - **주요 특성:** 제작비, 개봉 수익, 장르, 상영 시간, 개봉 연도, 상영 등급  
+    - **출처:** [스타벅스 코리아](https://www.starbucks.co.kr/menu/drink_list.do), [Kaggle](https://www.kaggle.com/datasets/noorunnishabegum1996/starbucks-drinkmenu-expanded)
+        - 실사용 데이터셋 : 스타벅스 영양성분.csv (스타벅스 코리아 홈페이지 및 앱 내 데이터 이용하여 직접 제작)
+    - **주요 특성:** 음료 유형, 음료명, 영양정보 등
     """)
     
     st.markdown('<h4>📌 전처리 과정</h4>', unsafe_allow_html=True)
     st.write("""
-    - 🔹 **결측치 처리** – 누락된 데이터 보완(NaN 값을 해당 컬럼의 mean()값으로 대체)   
-    - 🔹 **문자열 데이터 인코딩** – LabelEncoder 적용(장르, 상영 등급 등 문자열 컬럼)    
+    - 🔹 영문 데이터 한글화: 원본 데이터셋이 미국 스타벅스의 음료 정보 기반으로 생성
+        - 한국 스타벅스의 음료 정보에 따라 컬럼 및 데이터명 번역
+             - 예시: "Beverage" -> "음료명"
+    - 🔹 한국 스타벅스 메뉴 데이터 추가:
+        - 미국 스타벅스에 존재하지 않는 한국 스타벅스 음료 데이터 추가
+            - 예시: "제주 말차 라떼" -> 미국에는 없는 음료
+    - 🔹 컬럼 분리 및 간소화: 
+        - 여러 데이터가 결합된 컬럼을 분리하여 가독성 향상 및 분석 용이성 증대
+             - 예시: 음료의 사이즈와 유제품 여부 데이터가 들어있는 "Beverage_prep" 컬럼을 "사이즈", "유제품"으로 분리
     """)
 
     st.markdown("---")
     
-    # 영화 유형 분류 (클러스터링)
-    st.markdown('<h2>🏷 영화 유형 분류 (클러스터링)</h2>', unsafe_allow_html=True)
+    st.markdown('<h2>💿 데이터베이스 생성</h2>', unsafe_allow_html=True)
     
-    st.markdown('<h4>📌 사용한 기법</h4>', unsafe_allow_html=True)
+    st.markdown('<h4>📌 데이터베이스 유형</h4>', unsafe_allow_html=True)
     st.write("""
-    - K-Means 클러스터링  
-    - 최적 K값 선정: 엘보우 메소드 적용 (2 ≤ K ≤ 10)  
+    - **user_data.csv** : 
+        - 목적 : 사용자 정보 저장
+        - 컬럼 : 사용자 ID, 이름, 비밀번호 등
     """)
     
-    st.markdown('<h4>📌 엘보우 메소드 차트</h4>', unsafe_allow_html=True)
-    st.image('image/elbow_method.png', caption='엘보우 메소드를 이용한 클러스터 개수 결정')
+    st.info('🔍 **데이터 샘플**')
+    df_user = pd.read_csv('data/user_data.csv')
+    st.dataframe(df_user.head(1))
 
-    st.markdown('<h4>📌 최적의 클러스터 개수 결정</h4>', unsafe_allow_html=True)
     st.write("""
-    - 개발자가 임의로 클러스터 개수를 정하는 것이 아닌, 내부 연산을 통해 스스로 최적의 클러스터 개수를 도출
-    - 차트 내 임의의 좌표를 기준으로, 앞뒤의 기울기가 드라마틱하게 변화하는 지점을 최적의 클러스터 개수가 형성되는 지점으로 설정
+    - **order_data.csv** :
+        - 목적 : 주문 내역 저장
+        - 컬럼 : 사용자 ID, 음료명, 주문 수 등
     """)
 
-    st.markdown('<h4>📌 최적의 클러스터 개수 계산 결과</h4>', unsafe_allow_html=True)
+    st.info('🔍 **데이터 샘플**')
+    df_log = pd.read_csv('data/order_data.csv')
+    st.dataframe(df_log.head(1))
+
     st.write("""
-    - 3개의 클러스터로 분류할 경우 가장 효율적이라는 결론에 도달         
+    - **review_data.csv** :
+        - 목적 : 리뷰 정보 저장
+        - 컬럼 : 사용자 ID, 음료명, 평점, 리뷰 텍스트 등
     """)
-    
-    st.markdown('<h4>📌 결과: 3가지 유형의 영화 분류</h4>', unsafe_allow_html=True)
-    st.write("""
-    1️⃣ **메가 블록버스터** – 아주 높은 제작비와 수익을 기록하는 초대형 영화  
-    2️⃣ **블록버스터** – 중간 정도의 제작비와 높은 수익을 기대할 수 있는 영화  
-    3️⃣ **미들 마켓** – 상대적으로 낮은 제작비와 중간 수준의 수익을 내는 영화  
-    """)
+
+    st.info('🔍 **데이터 샘플**')
+    df_review = pd.read_csv('data/review_data.csv')
+    st.dataframe(df_review.head(1))
+
 
     st.markdown("---")
     
-    # 영화 유형 예측 (KNN 모델)
-    st.markdown('<h2>🎭 영화 유형 예측 (KNN 모델)</h2>', unsafe_allow_html=True)
+
+    st.markdown('<h2>🎭 회원가입 및 로그인 시스템 구축</h2>', unsafe_allow_html=True)
+
+    st.markdown('<h4>📌 필요성</h4>', unsafe_allow_html=True)
+    st.write('- 개인별 취향에 맞는 음료의 추천 위해 로그인이 필요')
 
     st.markdown('<h4>📌 사용한 기법</h4>', unsafe_allow_html=True)
     st.write("""
-    - KNN (K-Nearest Neighbors) 분류 모델 (n_neighbors = 5)  
-    - 모델 정확도: 75.76%  
+    - 데이터베이스 연동: 사용자 정보를 데이터베이스에 저장하고 관리
+        - 회원가입 시 사용자 정보를 데이터베이스에 저장
+        - 로그인 시 입력된 정보를 데이터베이스와 비교하여 인증
+    - 세션 관리: 사용자의 로그인 상태를 유지하기 위해 세션을 관리
+        - 앱 실행 시 최초 세션을 로그아웃 상태로 설정
+        - 로그인 시 세션을 로그인 상태로 변경
+        - 이후 세션 유지를 통해 탭 변경에도 로그인 상태 유지
     """)
-    
+
+    st.markdown('<h4>📌 회원가입 및 로그인 프로세스</h4>', unsafe_allow_html=True)
+    st.write("""
+    - 회원가입: 사용자 정보를 입력받아 데이터베이스에 저장
+        - ID 중복 여부 확인 후 회원가입 허용
+        - 사용자 이름, ID, 비밀번호 저장
+    - 로그인: 입력된 사용자 정보를 데이터베이스와 비교하여 인증
+        - 사용자 ID 및 비밀번호의 조합이 일치하는지 확인 후 로그인 허용
+        - 로그인 성공 시 사용자 이름을 화면에 출력
+    """)
+
     st.markdown('<h4>📌 사용자 입력 예시</h5>', unsafe_allow_html=True)
     st.markdown("""
                 ```bash
-                제작비: 80000000 
-                장르: 액션  
-                상영 시간: 130  
-                개봉 연도: 2023
-                """)
+                ID: abc
+                PW: alpha
+                ```""")
 
-    st.markdown('<h4>📌 예측 결과</h4>', unsafe_allow_html=True)
+    st.markdown('<h4>📌 출력 결과</h4>', unsafe_allow_html=True)
     st.markdown("""
                 ```bash
-                ▶ 예상 유형: 메가 블록버스터
+                ▶ 홍길동님, 환영합니다! 🎉
                 """)
 
     st.markdown("<h4>📌 활용 방안</h4>", unsafe_allow_html=True)
     st.write("""
-    ✅ 영화 제작 초기에 유형을 미리 파악하여 마케팅 전략 수립 가능  
-    ✅ 투자자들이 영화 프로젝트의 성격을 쉽게 이해할 수 있도록 지원
+    - ID로 사용자별 음료 주문 및 리뷰 작성 기록 구분: 개인 맞춤형 음료 추천에 활용
+        - 회원가입이 없을 경우 주문 및 리뷰 작성 불가능
+    - 주문 내역 및 리뷰 관리
+        - 사용자의 음료 주문 빈도 및 리뷰 작성/수정 가능
     """)
+
 
     st.markdown("---")
     
-    # 북미 박스오피스 수익 예측
-    st.markdown('<h2>🎟 북미 박스오피스 수익 예측</h2>', unsafe_allow_html=True)
 
-    st.markdown('<h4>📌 목표</h4>', unsafe_allow_html=True)
-    st.write('- 영화의 북미 개봉 후 예상 수익을 머신러닝을 통해 예측')
+    st.markdown('<h2>🎟 주문 시스템 구축</h2>', unsafe_allow_html=True)
 
-    st.markdown('<h4>📌 사용한 기법</h4>', unsafe_allow_html=True)
+    st.markdown('<h4>📌 필요성</h4>', unsafe_allow_html=True)
+    st.write('- 사용자가 실제로 구매한 음료가 무엇인지 파악하고 이를 기반으로 이후 추천에 반영')
+
+    st.markdown('<h4>📌 주문 정보 저장 프로세스</h4>', unsafe_allow_html=True)
     st.write("""
-    - Linear Regression (선형 회귀)  
-    - RandomForestRegressor (랜덤 포레스트)  
-    - XGBRegressor (XGBoost)  
-    - **최종 선정 모델**: 선형 회귀 (예측 정확도 73%)  
+    - 데이터베이스 연동: 주문 정보를 데이터베이스에 저장
+        - 사용자 ID, 음료명, 사이즈 등의 정보 저장
+            - 사용자가 처음 주문한 음료: 새로운 행으로 저장
+            - 사용자가 이미 주문한 음료: 해당 행의 '주문 수' 컬럼의 값 1 증가
+    - 사용자 인터페이스: 사용자가 쉽게 주문할 수 있도록 직관적인 UI 제공
+        - 음료 유형, 음료 선택, 사이즈 선택 등의 정보 입력만으로 주문이 가능하도록 구성
     """)
 
     st.markdown('<h4>📌 사용자 입력 예시</h4>', unsafe_allow_html=True)
     st.markdown("""
                 ```bash
-                제작비: 80000000 
-                장르: 액션  
-                상영 시간: 130  
-                개봉 연도: 2023
+                음료 유형 선택 : 에스프레소
+                음료 선택 : 아이스 카페 아메리카노
+                사이즈 선택 : Tall
                 """)
 
-    st.markdown('<h4>📌 예측 결과</h4>', unsafe_allow_html=True)
+    st.markdown('<h4>📌 출력 결과</h4>', unsafe_allow_html=True)
     st.markdown("""
                 ```bash
-                ▶ 예상 북미 박스오피스 수익: 2억 5000만 달러
+                ▶ 아이스 카페 아메리카노 주문이 완료되었습니다! ☕️
                 """)
 
     st.markdown('<h4>📌 활용 방안</h4>', unsafe_allow_html=True)
     st.write("""
-    ✅ 신작 영화의 예상 수익을 미리 예측하여 투자 리스크 관리 가능  
-    ✅ 배급 전략 최적화를 위한 데이터 기반 의사 결정 지원
+    - 주문 데이터를 기반으로 사용자 맞춤형 추천 제공
+        - 사용자의 주문 이력을 기반으로 사용자가 자주 마시는 음료 파악
+    - 주문 내역을 통해 인기 음료 분석
+        - 사용자 개개인의 주문 이력을 수집하여 소비자 전반의 선호도 파악
     """)
 
     st.markdown("---")
     
-    # 전 세계 박스오피스 수익 예측
-    st.markdown('<h2>🌍 전 세계 박스오피스 수익 예측</h2>', unsafe_allow_html=True)
+
+    st.markdown('<h2>🌍 음료 추천 서비스</h2>', unsafe_allow_html=True)
 
     st.markdown('<h4>📌 목표</h4>', unsafe_allow_html=True)
-    st.write('- 북미 박스오피스 수익을 기반으로 전 세계 박스오피스 수익 예측')
+    st.write('- 사용자들의 주문 이력을 바탕으로 각 사용자에게 맞는 음료 추천')
 
-    st.markdown('<h4>📌 분석 결과</h4>', unsafe_allow_html=True)
+    st.markdown('<h4>📌 사용 기법</h4>', unsafe_allow_html=True)
     st.write("""
-    - 북미 수익 대비 전 세계 평균 수익 배율: 3.51배  
-    - 그러나 이상치(최댓값 315.4)를 고려하여 **중앙값(2.7배)** 을 최종 배율로 적용
+    - 협업 필터링: 유사한 취향을 가진 사용자들의 주문 데이터를 기반으로 추천
+    - 콘텐츠 기반 필터링: 음료의 특성을 분석하여 유사한 음료 추천
     """)
 
-    st.markdown('<h4>📌 예측 공식</h4>', unsafe_allow_html=True)
-    st.write('- **전 세계 수익 = 북미 박스오피스 수익 × 2.7**')
+    st.markdown('<h4>📌 추천 옵션 및 프로세스</h4>', unsafe_allow_html=True)
+    st.write("""
+    - 1. 늘 먹던 걸로.
+        - 사용자의 과거 주문 내역을 기반으로 추천
+    - 2. 피곤해요.. 혈중 카페인 농도 부족!
+        - 카페인 함량이 높은 음료 추천
+    - 3. 그냥 아주 달달한 거 주세요.
+        - 당 함량이 높은 음료 추천
+    - 4. 죄책감은 최소로! 맛은 그대로!
+        - 저칼로리 음료 추천
+    - 5. 오늘은 새로운 게 궁금해!
+        - 새로운 음료 추천
+    """)
 
     st.markdown('<h4>📌 사용자 입력 예시</h5>', unsafe_allow_html=True)
     st.markdown("""
                 ```bash
-                제작비: 80000000 
-                장르: 액션  
-                상영 시간: 130  
-                개봉 연도: 2023
+                옵션 : 그냥 아주 달달한 거 주세요.
+                유제품 : 우유 든 걸로!
+                사이즈 : Tall
                 """)
 
-    st.markdown('<h4>📌 예측 결과</h4>', unsafe_allow_html=True)
+    st.markdown('<h4>📌 출력 결과</h4>', unsafe_allow_html=True)
     st.markdown("""
                 ```bash
-                ▶ 예상 전 세계 박스오피스 수익: 6억 7500만 달러
+                ▶ 달달한 거 너무 좋죠,
+                Tall 사이즈 딸기 아사이 레모네이드 스타벅스 리프레셔
+                어때요?
+                """)
+    
+    st.markdown('<h4>📌 추천 결과 기반 주문 시스템</h4>', unsafe_allow_html=True)
+    st.write("""
+    - '이거 마실래요' 버튼 클릭 시 주문이 이루어짐
+    - 상술한 주문 시스템과 동일한 방식으로 주문 완료
+    """)
+
+    st.markdown('<h4>📌 출력 결과</h4>', unsafe_allow_html=True)
+    st.markdown("""
+                ```bash
+                ▶ 제 추천이 마음에 드시길 바래요!
                 """)
 
     st.markdown('<h4>📌 활용 방안</h4>', unsafe_allow_html=True)
     st.write("""
-    ✅ 해외 배급 전략 수립 시 예상 글로벌 수익 분석 가능  
-    ✅ 투자 규모 및 마케팅 예산 설정에 도움
+    - 사용자 맞춤형 음료 추천을 통해 만족도 향상
+    - 추천 시스템을 통해 새로운 음료 홍보
     """)
 
     st.markdown("---")
     
-    # 향후 개선 가능성
+    st.markdown('<h2>🌍 리뷰 작성 시스템</h2>', unsafe_allow_html=True)
+
+    st.markdown('<h4>📌 목표</h4>', unsafe_allow_html=True)
+    st.write('- 음료에 대한 사용자들의 의견 수집 및 이를 바탕으로 추천 시스템 개선')
+
+    st.markdown('<h4>📌 사용 기법</h4>', unsafe_allow_html=True)
+    st.write("""
+    - 자연어 처리: 리뷰 텍스트를 분석하여 긍정/부정 감성 분석
+    - 데이터베이스 연동: 리뷰 정보를 데이터베이스에 저장
+    """)
+
+    st.markdown('<h4>📌 리뷰 작성/수정 및 저장 프로세스</h4>', unsafe_allow_html=True)
+    st.write("""
+    - 사용자가 음료에 대한 리뷰를 작성하고 제출
+    - 제출된 리뷰를 데이터베이스에 저장
+    - 사용자가 작성한 리뷰를 수정할 수 있는 기능 제공
+    """)
+
+    st.markdown('<h4>📌 사용자 입력 예시</h5>', unsafe_allow_html=True)
+    st.markdown("""
+                ```bash
+                음료 유형 : 에스프레소
+                음료 : 아이스 카페 아메리카노
+                사이즈 : Tall
+                별점 : 4
+                리뷰 : 맛있어요!
+                """)
+
+    st.markdown('<h4>📌 출력 결과</h4>', unsafe_allow_html=True)
+    st.markdown("""
+                ```bash
+                ▶ 리뷰가 성공적으로 제출되었습니다! 감사합니다. 🎉
+                """)
+    
+    st.markdown('<h4>📌 활용 방안</h4>', unsafe_allow_html=True)
+    st.write("""
+    - 리뷰 데이터를 분석하여 음료의 장단점 파악
+    - 리뷰를 바탕으로 음료 추천 시스템 개선
+    """)
+
     st.markdown('<h2>🎯 향후 개선 가능성</h2>', unsafe_allow_html=True)
     st.write("""
-    **📌 모델 개선**  
-    ✅ Deep Learning 기법 도입하여 예측 정확도 향상  
-    ✅ 더 많은 데이터셋을 확보하여 학습 데이터 확장
-
-    **📌 UI 및 사용자 경험 개선**  
-    ✅ Streamlit 기반 인터페이스를 개선하여 직관적인 데이터 입력 및 시각화 제공  
-    ✅ 색각이상을 고려한 클러스터 시각화 기능 추가  
-
-    **📌 실제 영화 산업 적용**  
-    ✅ 영화 제작사 및 배급사와 협업하여 실제 데이터 기반 실험 진행  
-    ✅ 글로벌 시장 트렌드를 반영한 수익 예측 모델 개선
+    - 음성 인식 기능 추가: 음성으로 음료 주문 및 리뷰 작성 가능
+    - 실시간 추천 시스템: 사용자의 현재 상태(예: 날씨, 기분)에 따라 실시간으로 음료 추천
+    - 소셜 미디어 연동: 사용자 리뷰를 소셜 미디어에 공유하여 더 많은 피드백 수집
     """)
 
     st.markdown("---")

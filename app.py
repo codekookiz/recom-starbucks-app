@@ -95,8 +95,8 @@ def main():
     with tab2:
         run_info()
 
-    #with tab3:
-        #run_dev()
+    with tab3:
+        run_dev()
 
     with tab4:
         run_choice()

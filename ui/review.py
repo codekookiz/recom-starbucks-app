@@ -29,7 +29,7 @@ def run_review():
             ☕️ 오늘의 음료, 어떠셨나요?
         </h2>
         <p style="font-size: 24px; text-align: center; color: ##4C82C2;">
-            <b>사용자 리뷰 수집 및 추천 시스템 개선<b>
+            <b>사용자 리뷰 수집 및 딥러닝을 활용한 추천 시스템 개선<b>
         </p>
         """,
         unsafe_allow_html=True

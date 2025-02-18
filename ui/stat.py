@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sb
 import numpy as np
 
+
 def run_stat() :
 
     st.text('')
@@ -69,31 +70,39 @@ def run_stat() :
     if not (df_log.empty or df_review.empty) :
         # 음료별 주문 빈도 상위 5개 및 하위 5개
         st.info("📊 **음료별 주문 빈도 상위 5개 및 하위 5개**")
-        order_counts = df_log['음료명'].value_counts()
+    
+        # 음료명별 주문 수 합계 계산
+        order_counts = df_log.groupby('음료명')['주문 수'].sum().sort_values(ascending=False)
+        
         # df_log에 없는 음료 목록 df_drink에서 가져와서 리스트로 만들기
         drink_list = df_drink['음료명'].tolist()
-        for drink in order_counts.index :
-            if drink not in drink_list :
+        for drink in order_counts.index:
+            if drink not in drink_list:
                 order_counts.drop(drink, inplace=True)
+        
         top_5_orders = order_counts.head(5)
-        if len(drink_list) in [1, 2, 3, 4] :
+        if len(drink_list) in [1, 2, 3, 4]:
             bottom_5_orders = order_counts.tail(5 - len(drink_list))
             list_to_add = [0] * len(drink_list)
             series_from_list = pd.Series(list_to_add, index=drink_list)
             bottom_5_orders = pd.concat([bottom_5_orders, series_from_list])
-        elif len(drink_list) == 0 :
+        elif len(drink_list) == 0:
             bottom_5_orders = order_counts.tail(5)
-        else :
+        else:
             random_drinks = np.random.choice(drink_list, 5, replace=False)
             list_to_add = [0] * 5
             bottom_5_orders = pd.Series(list_to_add, index=random_drinks)
-    
+
         combined_orders = pd.concat([top_5_orders, pd.Series([0]*5, index=['...']*5), bottom_5_orders])
 
         fig1, ax1 = plt.subplots()
         combined_orders.plot(kind='bar', ax=ax1, color=['skyblue']*5 + ['white']*5 + ['lightcoral']*5)
         ax1.set_title('음료별 주문 빈도 상위 5개 및 하위 5개')
         ax1.set_ylabel('주문 횟수')
+        ax1.set_xticklabels(combined_orders.index)
+
+        # y축 레이블을 정수로 표시
+        ax1.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: int(x)))
         st.pyplot(fig1)
 
         st.markdown("---")

@@ -133,38 +133,38 @@ def run_stat() :
             """)
         st.markdown("---")
 
-        # 음료별 평균 평점 및 추천 점수 분포
-        st.info("📈 **음료별 평균 별점 및 추천 점수 분포**")
+        # 음료별 평균 평점 및 주문 수 분포
+        st.info("📈 **음료별 평균 별점 및 주문 수 분포**")
         avg_ratings = df_review.groupby('음료명')['별점'].mean()
-        avg_recommendations = df_drink.groupby('음료명')['추천 점수'].mean()
+        total_orders = df_log.groupby('음료명')['주문 수'].sum()
 
         merged_df = pd.DataFrame({
             '평점': avg_ratings,
-            '추천 점수': avg_recommendations
+            '주문 수': total_orders
         }).dropna()
 
         # 중복된 값을 제거하여 하나의 점만 표시
-        merged_df = merged_df[~merged_df.duplicated(subset=['평점', '추천 점수'])]
+        merged_df = merged_df[~merged_df.duplicated(subset=['평점', '주문 수'])]
 
         fig3, ax3 = plt.subplots()
-        sb.scatterplot(data=merged_df, x='추천 점수', y='평점', ax=ax3)
+        sb.scatterplot(data=merged_df, x='주문 수', y='평점', ax=ax3)
 
         # 각 점 옆에 음료명과 사이즈 표시
         for i in range(merged_df.shape[0]):
             ax3.annotate(merged_df.index[i], 
-                         (merged_df['추천 점수'][i], merged_df['평점'][i]), 
+                         (merged_df['주문 수'][i], merged_df['평점'][i]), 
                          fontsize=6, 
-                         rotation=30,
-                         xytext=(5, 5),  # 텍스트를 점에서 약간 떨어뜨림
+                         rotation=15,
+                         xytext=(5, 0),  # 텍스트를 점에서 약간 떨어뜨림
                          textcoords='offset points')
 
-        ax3.set_title('음료별 평균 별점 및 추천 점수 분포')
-        ax3.set_xlabel('추천 점수')
+        ax3.set_title('음료별 평균 별점 및 주문 수 분포')
+        ax3.set_xlabel('주문 수')
         ax3.set_ylabel('별점')
         st.pyplot(fig3)
         st.write("""
-            - 음료별 평균 평점과 추천 점수를 산점도로 시각화하여 두 요소 간의 관계를 분석합니다.
-                - 평점과 추천 점수가 모두 높은 음료는 사용자 만족도와 시스템 추천이 일치함을 나타냅니다.
-                - 불일치하는 경우에는 추천 알고리즘 개선 또는 평점 시스템 검토가 필요할 수 있습니다.
-            - 시스템 신뢰도 향상 및 사용자 경험 개선에 중요한 분석 지표로 활용됩니다.
+            - 음료별 평균 평점과 총 주문 수를 산점도로 시각화하여 두 요소 간의 관계를 분석합니다.
+                - 평점과 주문 수가 모두 높은 음료는 사용자 만족도와 실제 수요가 일치함을 나타냅니다.
+                - 불일치하는 경우에는 마케팅 전략 또는 사용자 경험 개선이 필요할 수 있습니다.
+            - 실질적인 소비 패턴과 만족도를 동시에 반영한 분석 자료로 활용됩니다.
             """)

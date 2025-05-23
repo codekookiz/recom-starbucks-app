@@ -7,7 +7,7 @@
 ## 📌 앱 개요
 이 애플리케이션은 스타벅스의 영양 정보 데이터를 바탕으로 사용자의 취향과 주문 이력을 분석하고, 맞춤형 음료를 추천합니다. 또한 리뷰 기반 감정 분석을 통해 추천 알고리즘을 고도화하며, 음료의 평점, 주문 수, 성분 정보 등을 시각화하여 소비자 인사이트를 제공합니다.  
 <br>
-애플리케이션 링크 : [Streamlit Application](https://recom-starbucks-app-codekookiz.streamlit.app/)
+애플리케이션 링크 : [Streamlit Application](https://recom-starbucks-codekookiz.streamlit.app/)
 
 ---
 

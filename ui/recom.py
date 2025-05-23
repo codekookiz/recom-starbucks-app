@@ -148,7 +148,7 @@ def run_recom() :
                     my_num1 = my_drinks.value_counts().idxmax()
                     st.success(f"""
                                 늘 한결 같은 당신, 오늘도
-                                {size} 사이즈 {my_num1[0]}로
+                                {size} 사이즈 {my_num1[0]}(으)로
                                 드리면 될까요?
                                 """)
                     if st.button('이거 마실래요!') :
@@ -178,7 +178,7 @@ def run_recom() :
                     if my_num1_data['카페인 (mg)'].values[0] >= mean_caffeine :
                         st.success(f"""
                                 카페인이 부족한 오늘,\n\n
-                                {size} 사이즈 {my_num1[0]}로\n\n
+                                {size} 사이즈 {my_num1[0]}(으)로\n\n
                                 힘내보는 건 어때요?
                                 """)
                         st.dataframe(df_drink.loc[(df_drink['음료명'] == my_num1[0]) & (df_drink['사이즈'] == my_num1[1]), '음료명':'카페인 (mg)'].set_index('음료명'))
@@ -203,7 +203,7 @@ def run_recom() :
                         final_drink = ideal_drinks.loc[0, '음료명']
                         st.success(f"""
                                     카페인이 부족한 오늘,\n\n
-                                    {size} 사이즈 {final_drink}로\n\n
+                                    {size} 사이즈 {final_drink}(으)로\n\n
                                     힘내보는 건 어때요?
                                     """)
                         st.dataframe(ideal_drinks.loc[[0], '음료명':'카페인 (mg)'].set_index('음료명'))
@@ -290,7 +290,7 @@ def run_recom() :
                     if my_num1_data['칼로리 (kcal)'].values[0] < mean_calorie :
                         st.success(f"""
                                     칼로리 걱정 말고,\n\n
-                                    {size} 사이즈 {my_num1[0]}로\n\n
+                                    {size} 사이즈 {my_num1[0]}(으)로\n\n
                                     주문하세요!
                                     """)
                         st.dataframe(df_drink.loc[(df_drink['음료명'] == my_num1[0]) & (df_drink['사이즈'] == my_num1[1]), '음료명':'카페인 (mg)'].set_index('음료명'))
@@ -315,7 +315,7 @@ def run_recom() :
                         final_drink = ideal_drinks.loc[0, '음료명']
                         st.success(f"""
                                     칼로리 걱정 말고,\n\n
-                                    {size} 사이즈 {final_drink}로\n\n
+                                    {size} 사이즈 {final_drink}(으)로\n\n
                                     주문하세요!
                                     """)
                         st.dataframe(ideal_drinks.loc[[0], '음료명':'카페인 (mg)'].set_index('음료명'))
@@ -348,7 +348,7 @@ def run_recom() :
                     final_drink = random_drink['음료명'].values[0]
                     st.success(f"""
                                 오늘은\n\n
-                               {size} 사이즈 {final_drink}로\n\n
+                               {size} 사이즈 {final_drink}(으)로\n\n
                                 새로운 음료를 시도해보는 건 어떨까요?
                                 """)
                     st.dataframe(df_drink.loc[(df_drink['음료명'] == final_drink) & (df_drink['사이즈'] == size), '음료명':'카페인 (mg)'].set_index('음료명'))

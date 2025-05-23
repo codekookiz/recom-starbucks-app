@@ -1,9 +1,25 @@
+from transformers import MarianTokenizer, MarianMTModel
+from transformers import pipeline
+import torch
 import streamlit as st
 import pandas as pd
 import time
 import os
 from huggingface_hub import InferenceClient
 from huggingface_hub import login
+
+
+@st.cache_resource
+def load_translation_model():
+    model_name = "Helsinki-NLP/opus-mt-ko-en"
+    tokenizer = MarianTokenizer.from_pretrained(model_name)
+    model = MarianMTModel.from_pretrained(model_name)
+    return tokenizer, model
+
+def translate(text, tokenizer, model):
+    inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True)
+    translated = model.generate(**inputs)
+    return tokenizer.decode(translated[0], skip_special_tokens=True)
 
 
 def run_review():
@@ -141,50 +157,24 @@ def run_review():
                     status = 'Update'
 
                 login(token=get_huggingface_token())
-                posneg = InferenceClient(model="distilbert/distilbert-base-uncased-finetuned-sst-2-english")
+                posneg = pipeline("sentiment-analysis", model="distilbert/distilbert-base-uncased-finetuned-sst-2-english", framework="pt")
                 if status == 'Update':
-                    client = InferenceClient(
-                        provider="hf-inference",
-                        api_key=get_huggingface_token()
-                    )
-                    prev_result = client.translation(
-                        model="yeeunlee/opus-mt-ko-en-finetuned",
-                        text=prev_review
-                    )
-                    prev_result = prev_result.translation_text
-                    prev_result = posneg.text_classification(text=prev_result)
-                    prev_result.sort(key=lambda x: x.score, reverse=True)
-                    prev_answer = prev_result[0].label
+                    tokenizer, model = load_translation_model()
+                    prev_result = translate(prev_review, tokenizer, model)
+                    prev_result = posneg(prev_result)
+                    prev_result.sort(key=lambda x: x['score'], reverse=True)
+                    prev_answer = prev_result[0]['label']
                     if prev_answer == 'POSITIVE':
                         df_drink.loc[(df_drink['음료명'] == drink) & (df_drink['사이즈'] == size), '추천 점수'] -= prev_rating
                     elif prev_answer == 'NEGATIVE':
                         df_drink.loc[(df_drink['음료명'] == drink) & (df_drink['사이즈'] == size), '추천 점수'] += (6 - prev_rating)
-                client = InferenceClient(
-                    provider="hf-inference",
-                    api_key=get_huggingface_token()
-                )
-                new_result = client.translation(
-                    model="yeeunlee/opus-mt-ko-en-finetuned",
-                    text=review
-                )
-                new_result = new_result.translation_text
-                new_result = posneg.text_classification(text=new_result)
-                new_result.sort(key=lambda x: x.score, reverse=True)
-                new_answer = new_result[0].label
+                tokenizer, model = load_translation_model()
+                new_result = translate(review, tokenizer, model)
+                new_result = posneg(new_result)
+                new_result.sort(key=lambda x: x['score'], reverse=True)
+                new_answer = new_result[0]['label']
                 if new_answer == 'POSITIVE':
                     df_drink.loc[(df_drink['음료명'] == drink) & (df_drink['사이즈'] == size), '추천 점수'] += rating
                 elif new_answer == 'NEGATIVE':
                     df_drink.loc[(df_drink['음료명'] == drink) & (df_drink['사이즈'] == size), '추천 점수'] -= (6 - rating)
                 df_drink.to_csv('data/menu_data.csv')
-
-                
-
-
-
-
-
-
-
-
-# 리뷰의 사용 방식 보여주기
-# 리뷰 기반으로 생성된 차트 이미지로 첨부

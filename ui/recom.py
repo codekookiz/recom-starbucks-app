@@ -307,7 +307,7 @@ def run_recom() :
                                 df_log.loc[(df_log['ID'] == id) & (df_log['음료명'] == my_num1[0]) & (df_log['사이즈'] == size), '주문 수'] += 1
                                 df_log.to_csv('data/order_data.csv', index=False)
                 if my_drinks.empty or my_num1_data['칼로리 (kcal)'].values[0] >= mean_calorie :
-                    df_drink = df_drink.loc[(df_drink['사이즈'] == size) & (df_drink['칼로리 (kcal)'] >= mean_caffeine)  & (df_drink['유제품'] == type), :]
+                    df_drink = df_drink.loc[(df_drink['사이즈'] == size) & (df_drink['칼로리 (kcal)'] <= mean_calorie)  & (df_drink['유제품'] == type), :]
                     calorie_order = df_drink['칼로리 (kcal)'].sort_values().values.tolist()
                     if calorie_order :
                         best_calorie = calorie_order[0]
@@ -339,7 +339,6 @@ def run_recom() :
             # 신규 추천
             elif choice == option_d[5] : 
                 new_df = df_drink.loc[(df_drink['유제품'] == type) & (df_drink['사이즈'] == size), :]
-                df_log = pd.read_csv('data/order_data.csv')
                 not_my_drinks = new_df.loc[~new_df['음료명'].isin(df_log.loc[df_log['ID'] == id, '음료명'])]
                 not_my_drinks.sort_values(by='추천 점수', ascending=False, inplace=True)
                 if not_my_drinks.empty :
